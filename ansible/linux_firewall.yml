@@ -1,0 +1,5 @@
+- name: Linux firewall
+  hosts: linux
+  ignore_errors: yes
+  roles:
+    - {role: linux_firewall, ignore_errors: yes}

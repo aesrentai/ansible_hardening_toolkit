@@ -1,0 +1,20 @@
+# ungrouped hosts here
+
+[linux] # insert linux hosts below
+
+[linux:vars]
+ansible_user=root
+ansible_connection=ssh
+
+[windows] # insert windows hosts below
+
+[windows:vars]
+ansible_user=Administrator
+ansible_connection=winrm
+ansible_winrm_transport=ntlm
+ansible_winrm_scheme=http
+ansible_winrm_server_cert_validation=ignore
+ansible_shell_type=cmd
+ansible_port=5985
+ansible_winrm_operation_timeout_sec=99999
+ansible_winrm_read_timeout_sec=999999

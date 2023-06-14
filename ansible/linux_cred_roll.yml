@@ -1,0 +1,8 @@
+- name: Linux Cred Roll
+  hosts: linux
+  gather_facts: no
+  vars_files:
+    - vars/management.yml
+    - vars/passwords.yml
+  roles:
+    - {role: linux_cred_roll, ignore_errors: no}

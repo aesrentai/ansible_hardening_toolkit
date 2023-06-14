@@ -1,0 +1,46 @@
+- name: Roll SSH Service Check Passwords
+  hosts: # SET THIS MANUALLY
+  gather_facts: no
+  vars_files:
+    - vars/random.yml
+    - vars/management.yml
+  tasks:
+  - name: Backup /etc/passwd and /etc/shadow
+    fetch:
+      src: "/etc/{{ item }}"
+      dest: "{{ host_files }}"
+    with_items:
+      - passwd
+      - shadow
+
+  - name: Retrieve all users with a login shell
+    shell: cat /etc/passwd | grep sh$ | cut -d ":" -f 1 | grep -v root | grep -v osogof
+    register: users
+
+  # TODO, FIGURE OUT HOW TO DO THIS WITHOUT NEEDING A LIST OF RANDOM PASSWORDS
+  #- name: Generate passwords for users
+  #  vars:
+  #    password_length: 24
+  #  set_fact:
+  #    user_passwords: "{{ user_passwords | default({}) | combine({item: lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=' + password_length|string)}) }}"
+  #  with_items: "{{ users.stdout_lines }}"
+
+  - name: Assign random passwords to each user
+    set_fact:
+      password_map: "{{ dict(users.stdout_lines | zip(random_passwords)) }}"
+
+  - name: Write user credentials to file
+    lineinfile:
+      dest: "creds_{{inventory_hostname}}"
+      line: "{{ item.key }},{{ item.value }}"
+      insertafter: EOF
+      create: yes
+    loop: "{{ password_map | dict2items }}"
+    delegate_to: localhost
+
+  - name: Change user passwords
+    user:
+      name: "{{ item.key }}"
+      password: "{{ item.value | password_hash }}"
+    loop: "{{ password_map | dict2items }}"
+

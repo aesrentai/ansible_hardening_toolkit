@@ -1,0 +1,17 @@
+- name: Backup firewall configuration
+  ansible.windows.win_shell: "netsh advfirewall export {{ windows_temp_dir }}\\original.wfw"
+
+- name: Backup the registry
+  ansible.windows.win_shell: "reg export {{ item }} {{ windows_temp_dir }}\\{{ item }}.reg"
+  loop: "{{ REGS }}"
+
+- name: Retrieve the firewall backup
+  fetch:
+    src: "{{ windows_temp_dir }}\\original.wfw"
+    dest: "{{ host_files }}"
+
+- name: Retrieve the registry backups
+  fetch:
+    src: "{{ windows_temp_dir }}\\{{ item }}.reg"
+    dest: "{{ host_files }}"
+  loop: "{{ REGS }}"

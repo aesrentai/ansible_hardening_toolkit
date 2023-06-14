@@ -1,0 +1,23 @@
+- name: Create a temp directory
+  ansible.windows.win_file:
+    path: "{{ windows_temp_dir }}"
+    state: directory
+
+- name: Transfer Procmon and Process Hacker
+  ansible.windows.win_copy:
+    src: "{{ item.file }}"
+    dest: "{{ item.path }}"
+  with_items:
+    - file: processhacker-2.39-setup.exe
+      path: "{{ windows_temp_dir }}"
+    - file: Procmon.exe
+      path: "C:\\Users\\Administrator\\Desktop"
+
+- name: Install processhacker
+  ansible.windows.win_command: "{{ windows_temp_dir }}\\processhacker-2.39-setup.exe /VERYSILENT"
+
+- name: Install all security updates and reboot
+  ansible.windows.win_updates:
+    category_names:
+    - SecurityUpdates
+    reboot: yes

@@ -1,0 +1,112 @@
+- name: Delete all shares
+  ansible.windows.win_share:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - C
+    - D
+    - IPC
+    - ADMIN
+# TODO PATCH PHP.INI
+
+- name: Set a lot of registry keys
+  ansible.windows.win_regedit:
+    path: "{{ item.path }}"
+    name: "{{ item.name }}"
+    data: "{{ item.data }}"
+    type: "{{ item.type }}"
+  with_items:
+    # TODO Disable Eternalblue some more, just to be safe
+    # arguments: '/c reg add HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters /v SMB1 /t REG_DWORD /d 0 /f'
+    # TODO: DISABLE NETBIOS
+    # HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NetBT\Parameters
+    # TODO: DISABLE WINRM
+    # Force NLA for RDP
+    - path: "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp"
+      name: UserAuthentication
+      data: 1
+      type: dword
+
+    # Disable psexec
+    - path: "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\psexec.exe"
+      name: psexec.exe
+      data: svchost.exe
+      type: string
+
+    # Enable UAC
+    - path: "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\policies\\system"
+      name: EnableLUA
+      data: 1
+      type: dword
+    - path: "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\policies\\system"
+      name: ConsentPromptBehaviorAdmin
+      data: 5
+      type: dword
+
+    - path: "HKLM:\\SYSTEM\\CurrentControlSet\\Control"
+      name: DisableRemoteScmEndpoints
+      data: 1
+      type: dword
+# TODO, GRAB SOME KEYS FROM BLUESPAWN
+
+- name: Delete UserInitMprLogonScript
+  ansible.windows.win_regedit:
+    path: "HKCU:\\Environment"
+    name: "UserInitMprLogonScript"
+    state: absent
+
+- name: Clear run and run once registry keys
+  ansible.windows.win_regedit:
+    path: "{{ item.path }}"
+    state: absent
+    delete_key: no
+  with_items:
+    - path: "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    - path: "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+    - path: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    - path: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+
+- name: Disable guest users
+  ansible.windows.win_user:
+    name: Guest
+    account_disabled: yes
+
+# TODO: REMOVE ALL USERS FROM RDPUSERS GROUP
+
+- name: Delete powerautomate
+  ansible.windows.win_file:
+    path: "C:\\Program Files (x86)\\Microsoft UI flows"
+    state: absent
+
+- name: Disable spooler
+  ansible.windows.win_service:
+    name: spooler
+    start_mode: disabled
+    state: stopped
+
+- name: Take ownership of sticky keys files
+  ansible.windows.win_owner:
+    path: "{{ item }}"
+    user: Administrator
+  loop: "{{ STICKY_KEYS_FILES }}"
+
+- name: Allow Administrator to write to sticky keys files
+  ansible.windows.win_acl:
+    path: "{{ item }}"
+    user: Administrator
+    rights: FullControl
+    type: allow
+  loop: "{{ STICKY_KEYS_FILES }}"
+
+- name: Delete sticky keys files
+  ansible.windows.win_file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ STICKY_KEYS_FILES }}"
+
+# TODO USE REGISTRY TO FORCE FIREWALL ACTIVE
+#- name: Force the Firewall to be active
+#
+
+# TODO DISABLE ALL SCHEDULED TASKS
+# TODO DISABLE MULTICAST NAME RESOLUTION

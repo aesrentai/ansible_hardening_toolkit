@@ -1,0 +1,7 @@
+- name: Linux backup
+  hosts: linux
+  vars_files:
+    - vars/management.yml
+  ignore_errors: yes
+  roles:
+    - {role: linux_backup, ignore_errors: yes}

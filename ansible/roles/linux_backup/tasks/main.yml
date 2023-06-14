@@ -1,0 +1,13 @@
+- name: Backup /etc /var/www /srv/www /root/.bash_history
+  community.general.archive:
+    path:
+      - /etc
+      - /var/www
+      - /srv/www
+      - /root/.bash_history
+    dest: "{{ linux_backup_dir }}/original.tar.gz"
+
+- name: Retrieve backups from host
+  fetch:
+    src: "{{ linux_backup_dir }}/original.tar.gz"
+    dest: "{{ host_files }}"

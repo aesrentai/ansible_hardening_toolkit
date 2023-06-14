@@ -1,0 +1,16 @@
+- name: Remove suid bit from pkexec
+  file:
+    path: /usr/bin/pkexec
+    mode: '0644'
+
+- name: Patch netfilter on debian
+  ansible.posix.sysctl:
+    name: "kernel.unprivileged_userns_clone"
+    value: '0'
+  when: ansible_os_family == "Debian"
+
+- name: Patch netfilter on fedora
+  shell: | # TODO MAKE SURE I DIDN'T MAKE A TYPO WHILE WRITING THIS
+    echo 0 > /proc/sys/user/max_user_namespaces
+    sysctl --system
+  when: ansible_os_family == "RedHat"

@@ -1,0 +1,5 @@
+- name: Linux immutable
+  hosts: linux
+  ignore_errors: yes
+  roles:
+    - {role: linux_immutable, ignore_errors: yes}

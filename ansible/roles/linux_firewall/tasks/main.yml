@@ -1,0 +1,67 @@
+- name: Allow all whitelisted traffic
+  iptables:
+    table: filter
+    chain: INPUT
+    jump: ACCEPT
+    state: present
+    source: "{{ item }}"
+  loop: "{{ whitelisted_ips }}"
+  iptables:
+    table: filter
+    chain: OUTPUT
+    jump: ACCEPT
+    state: present
+    destination: "{{ item }}"
+  loop: "{{ whitelisted_ips }}"
+
+- name: Drop all blacklisted traffic
+  iptables:
+    table: filter
+    chain: INPUT
+    jump: DROP
+    state: present
+    source: "{{ item }}"
+  loop: "{{ blacklisted_ips }}"
+  iptables:
+    table: filter
+    chain: OUTPUT
+    jump: DROP
+    state: present
+    destination: "{{ item }}"
+  loop: "{{ blacklisted_ips }}"
+
+# TODO, ALLOW USERFACING SERVICES
+
+- name: Allow ICMP echo requests
+  iptables:
+    table: filter
+    chain: INPUT
+    protocol: icmp
+    icmp_type: 8
+    jump: ACCEPT
+    state: present
+
+- name: Allow outbound DNS
+  iptables:
+    table: filter
+    chain: OUTPUT
+    jump: ACCEPT
+    state: present
+    destination: "{{ item }}"
+    protocol: udp
+    dport: 53
+  loop: "{{ dns_servers }}"
+
+- name: Block inbound by default
+  iptables:
+    table: filter
+    chain: INPUT
+    policy: DROP
+    state: present
+
+- name: Block outbound by default
+  iptables:
+    table: filter
+    chain: OUTPUT
+    policy: DROP
+    state: present

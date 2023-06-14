@@ -1,0 +1,54 @@
+- name: Hide binaries in /usr/bin
+  command: "mv /usr/bin/{{ item }} {{ linux_root_bin }}"
+  with_items:
+    - sudo
+    - sudoedit
+    - su
+    - dd
+    - gcc
+    - ld
+    - nc
+    - netcat
+    - lsattr
+    - chattr
+  ignore_errors: true
+
+- name: Hide binarines in /usr/sbin
+  command: "mv /usr/sbin/{{ item }} {{ linux_root_bin }}"
+  with_items:
+    - visudo
+    - cron
+  ignore_errors: true
+
+- name: Disable bpf for unprivileged users
+  ansible.posix.sysctl:
+    name: kernel.unprivileged_bpf_disabled
+    value: '1'
+
+- name: Replace netcat with an error message
+  copy:
+    src: nc
+    dest: "/usr/bin/nc"
+    mode: 0755
+
+- name: Disable authorized keys
+  blockinfile:
+    dest: /etc/ssh/sshd_config
+    block: |
+      PubkeyAuthentication no
+      Match Address {{ management_server }}
+          PubkeyAuthentication yes
+  notify: Restart sshd
+
+- name: Only allow root to ssh in
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^AllowUsers"
+    line: "AllowUsers root emergencyosogof"
+    state: present
+  when: not "22" in hostvars[inventory_hostname].userfacing
+  notify: Restart sshd
+
+# TODO KILL CUPSD
+# TODO, TOSS /etc/ld.so.preload
+# TODO ADD BANNED FUNCTIONS TO PHP.INI

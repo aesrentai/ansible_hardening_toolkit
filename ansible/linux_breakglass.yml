@@ -1,0 +1,14 @@
+- name: DANGER LINUX BREAKGLASS
+  hosts: linux
+  gather_facts: no
+  vars_files:
+    - vars/management.yml
+  tasks:
+    - name: Make sure we can connect to each box
+      shell: "ls"
+
+    - name: Press enter to trigger breakglass
+      pause:
+
+    - name: Trigger the breakglass
+      shell: "exec nohup bash -c 'sleep 5 && chmod +x {{ linux_breakglass_bin }} && {{ linux_breakglass_bin }} && systemctl restart sshd && dhclient'"

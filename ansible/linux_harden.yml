@@ -1,0 +1,7 @@
+- name: Linux Harden
+  hosts: linux
+  vars_files:
+    - vars/management.yml
+  ignore_errors: yes
+  roles:
+    - {role: linux_harden, ignore_errors: yes}

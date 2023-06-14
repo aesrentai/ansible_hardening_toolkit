@@ -1,0 +1,35 @@
+# selinux bindings are already installed in init_config
+- name: Resolve osquery server installation
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ osquery_ip }}\tfleet.{{ organization }}.local"
+    insertafter: EOF
+    state: present
+
+- name: Transfer osquery installer
+  copy:
+    src: "{% if ansible_os_family == 'Debian' %}fleet-osquery.deb{% else %}fleet-osquery.rpm{% endif %}"
+    dest: /tmp
+
+- name: Install osquery deb
+  apt:
+    deb: "/tmp/fleet-osquery.deb"
+    force: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install osquery on yum
+  yum:
+    name: "/tmp/fleet-osquery.rpm"
+    disable_gpg_check: yes
+  when: ansible_pkg_mgr == "yum"
+
+- name: Install osquery on dnf
+  dnf:
+    name: "/tmp/fleet-osquery.rpm"
+    disable_gpg_check: yes
+  when: ansible_pkg_mgr == "dnf"
+
+- name: Remove osquery installer
+  file:
+    path: "/tmp/{% if ansible_os_family == 'Debian' %}fleet-osquery.deb{% else %}fleet-osquery.rpm{% endif %}"
+    state: absent

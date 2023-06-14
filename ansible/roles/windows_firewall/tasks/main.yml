@@ -1,0 +1,40 @@
+- name: Allow inbound management
+  community.windows.win_firewall_rule:
+    name: AUTOMATED RULE Allow in "{{ item }}"
+    direction: in
+    remoteip: "{{ item }}"
+  loop: "{{ whitelisted_ips + domain_controller_ips }}"
+
+- name: Allow outbound management
+  community.windows.win_firewall_rule:
+    name: AUTOMATED RULE Allow out "{{ item }}"
+    direction: out
+    remoteip: "{{ item }}"
+  loop: "{{ whitelisted_ips + domain_controller_ips }}"
+
+- name: Allow ICMP echo
+  community.windows.win_firewall_rule:
+    name: AUTOMATED RULE Allow ICMP echo
+    protocol: icmpv4
+    icmp_type_code:
+    - '8:*'
+
+- name: Allow outbound DNS
+  community.windows.win_firewall_rule:
+    name: AUTOMATED RULE Allow outbound DNS
+    direction: out
+    protocol: udp
+    remoteport: 53
+    remoteip: "{{ item }}"
+  loop: "{{ dns_servers }}"
+
+# TODO: TOSS THIS?
+- name: Allow inbound RDP
+  community.windows.win_firewall_rule:
+    name: AUTOMATED RULE Allow RDP
+    localport: 3389
+    program: "%SystemRoot%\\system32\\svchost.exe"
+
+# TODO, set the appropriate registry keys to ensure the firewall is always
+# enabled with default deny everything over all profiles
+# TODO: allow the registyr icmp exception and some other stuff

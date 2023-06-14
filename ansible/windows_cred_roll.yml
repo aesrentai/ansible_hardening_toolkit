@@ -1,0 +1,10 @@
+- name: Windows Cred Roll
+  hosts: windows
+  gather_facts: no
+  vars_files:
+    - vars/management.yml
+    - vars/passwords.yml
+  vars:
+    - new_hosts_file: windows_hosts_complete
+  roles:
+    - {role: windows_cred_roll, ignore_errors: yes}

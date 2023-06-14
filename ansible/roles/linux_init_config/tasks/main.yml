@@ -1,0 +1,34 @@
+- name: Create all required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop: "{{ linux_paths }}"
+
+- name: Install selinux python bindings on dnf distros
+  package:
+    name: "{% if ansible_facts.python.version.major == 3 %}python3-libselinux{% else %}libselinux-python{% endif %}"
+  when: ansible_os_family == "RedHat"
+
+- name: Add /root/.local/bin to $PATH
+  lineinfile:
+    path: /root/.bashrc
+    line: "export PATH=\"/root/.local/bin:$PATH\""
+
+- name: Install our packages
+  package:
+    name: "{{ item }}"
+  with_items:
+    - vim
+    - lsof
+
+- name: Install the breakglass
+  copy:
+    src: network_killer
+    dest: "{{ linux_breakglass_bin }}"
+    mode: 0644
+
+- name: Copy busybox to root bin
+  copy:
+    src: busybox
+    dest: "{{ linux_root_bin }}"
+    mode: 0700

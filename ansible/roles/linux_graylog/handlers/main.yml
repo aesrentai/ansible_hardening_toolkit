@@ -1,0 +1,9 @@
+- name: Restart auditd
+  service:
+    name: auditd
+    state: restarted
+
+- name: Restart rsyslog
+  service:
+    name: rsyslog
+    state: restarted

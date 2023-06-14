@@ -1,0 +1,7 @@
+- name: DANGER Windows Breakglass
+  hosts: windows
+  gather_facts: no
+  vars_files:
+    - vars/management.yml
+  roles:
+    - windows_breakglass

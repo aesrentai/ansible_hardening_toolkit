@@ -1,0 +1,7 @@
+- name: Linux Initial Configuration
+  hosts: linux
+  vars_files:
+    - vars/management.yml
+  ignore_errors: yes
+  roles:
+    - {role: linux_init_config, ignore_errors: yes}

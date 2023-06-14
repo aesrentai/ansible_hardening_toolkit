@@ -1,0 +1,20 @@
+- name: Assign passwords
+  set_fact:
+    new_passwords: "{{ dict(groups['windows'] | zip(windows_passwords)) }}"
+
+- name: Print assigned passwords
+  debug:
+    msg: "{{ new_passwords[inventory_hostname] }}"
+
+- name: Add host to new ansible hosts file
+  lineinfile:
+    dest: "{{ new_hosts_file }}"
+    line: "{{ inventory_hostname }}\tansible_password={{ new_passwords[inventory_hostname] }}"
+    insertafter: EOF
+    create: yes
+  delegate_to: localhost
+
+- name: Update root password
+  win_user:
+    name: Administrator
+    password: "{{ new_passwords[inventory_hostname] }}"

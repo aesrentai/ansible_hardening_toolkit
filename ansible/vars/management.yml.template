@@ -1,0 +1,46 @@
+# Name of your organization
+organization:
+
+# Network topology
+
+# Fixed assets
+management_server:
+graylog_ip: "{{ management_server }}"
+graylog_port: 1514
+graylog_windows_port: 12201
+osquery_ip: "{{ management_server }}"
+
+# Firewall information
+whitelisted_ips_duplicates:
+  # management server, graylog, osquery
+  - "{{ management_server }}"
+  - "{{ graylog_ip }}"
+  - "{{ osquery_ip }}"
+
+whitelisted_ips: "{{ whitelisted_ips_duplicates | unique }}"
+
+blacklisted_ips_duplicates:
+  -
+
+blacklisted_ips: "{{ blacklisted_ips_duplicates | unique }}"
+
+domain_controller_ips:
+  -
+
+dns_servers:
+  - 8.8.8.8
+
+# host directory management
+host_files: "./client_files"
+
+# constants
+linux_breakglass_dir:
+linux_breakglass_bin:
+linux_backup_dir:
+linux_root_bin: "/root/.local/bin"
+linux_paths:
+  - "{{ linux_breakglass_dir }}"
+  - "{{ linux_backup_dir }}"
+  - "{{ linux_root_bin }}"
+
+windows_temp_dir: "C:\\Users\\Administrator\\AppData\\Local\\Temp"

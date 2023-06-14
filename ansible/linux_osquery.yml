@@ -1,0 +1,6 @@
+- name: Linux osquery
+  hosts: linux
+  vars_files:
+    - vars/management.yml
+  roles:
+    - {role: linux_osquery, ignore_errors: yes}

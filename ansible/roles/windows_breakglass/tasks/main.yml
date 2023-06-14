@@ -1,0 +1,8 @@
+- name: Make sure we can connect to each box
+  win_shell: whoami
+
+- name: Press enter to trigger breakglass
+  pause:
+
+- name: Trigger the breakglass
+  script: breakglass.bat

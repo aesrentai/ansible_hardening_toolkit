@@ -1,0 +1,6 @@
+- name: Windows Initial Configuration
+  hosts: windows
+  vars_files:
+    - vars/management.yml
+  roles:
+    - {role: windows_init_config, ignore_errors: yes}

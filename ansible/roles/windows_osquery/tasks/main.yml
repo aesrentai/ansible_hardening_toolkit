@@ -1,0 +1,15 @@
+- name: Transfer fleet installer
+  ansible.windows.win_copy:
+    src: fleet-osquery.msi
+    dest: "{{ windows_temp_dir }}"
+
+- name: Resolve osquery server installation
+  community.windows.win_lineinfile:
+    path: "C:\\Windows\\System32\\drivers\\etc\\hosts"
+    line: "{{ osquery_ip }}\tfleet.{{ organization }}.local"
+    insertafter: EOF
+
+- name: Install fleet
+  ansible.windows.win_package:
+    path: "{{ windows_temp_dir }}\\fleet-osquery.msi"
+    state: present

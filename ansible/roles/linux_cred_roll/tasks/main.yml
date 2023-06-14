@@ -1,0 +1,29 @@
+- name: Assign passwords
+  set_fact:
+    new_passwords: "{{ dict(groups['linux'] | zip(linux_passwords)) }}"
+
+- name: Print assigned passwords
+  debug:
+    msg: "{{ new_passwords[inventory_hostname] }}"
+
+- name: Add extra root user
+  user:
+    name: emergencyosogof
+    password: "{{ emergency_password | password_hash }}"
+    uid: 0
+    non_unique: true
+
+- name: Add host to new ansible hosts file
+  lineinfile:
+    dest: "{{ new_hosts_file }}"
+    line: "{{ inventory_hostname }}\t{{ new_passwords[inventory_hostname] }}"
+    insertafter: EOF
+    create: yes
+  delegate_to: localhost
+  # TODO, ADD A SEPERATOR AND ALWAYS ADD THE LINE EVEN IF IT ALREADY EXISTS
+
+- name: Update root password
+  user:
+    name: root
+    update_password: always
+    password: "{{ new_passwords[inventory_hostname] | password_hash }}"

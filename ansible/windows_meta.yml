@@ -1,0 +1,13 @@
+- name: Windows Everything Except Cred Rolls and Breakglass
+  hosts: windows
+  gather_facts: no
+  vars_files:
+    - vars/management.yml
+  # TODO ADD A GATHER FACTS PRETASK
+  roles:
+    - {role: windows_init_config, ignore_errors: yes}
+    - {role: windows_osquery, ignore_errors: yes}
+    - {role: windows_backup, ignore_errors: yes}
+    - {role: windows_firewall, ignore_errors: yes}
+    - {role: windows_harden, ignore_errors: yes}
+    - {role: windows_graylog, ignore_errors: yes}

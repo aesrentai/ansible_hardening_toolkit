@@ -1,0 +1,5 @@
+- name: Linux vuln patching
+  hosts: linux
+  ignore_errors: yes
+  roles:
+    - {role: linux_patch, ignore_errors: yes}
